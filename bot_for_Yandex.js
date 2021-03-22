@@ -9,9 +9,6 @@
 // @match        https://xn----7sbab5aqcbiddtdj1e1g.xn--p1ai/*
 // @grant        none
 // ==/UserScript==
-let keywords = ["Как звучит флейта","Валторна","Тромбон","Кларнет","Фагот","Гобой","Саксофон"];//поисковый запрос
-let randomIndex = Math.floor(Math.random()*keywords.length);
-let keyword = keywords[randomIndex];//генерация случайного слова для запроса поисковой строки
 
 function getCookie(name) {
     let matches = document.cookie.match(new RegExp(
@@ -31,36 +28,27 @@ let randomIndex = Math.floor(Math.random() * keywords.length);
 let keyword = keywords[randomIndex];
 
 let yandexInput = document.getElementsByClassName("input__control input__input mini-suggest__input")[0];//поисковая строка найдена по её class
-let btn = document.getElementsByClassName("button_theme_websearch")[0];//ищем кнопку поиска по классу
 let btn = document.getElementsByClassName("button_theme_websearch")[0];//ищем кнопку поиска Яндекс по классу
 
-let links = document.links;//сюда падают результаты поиска в виде массива
 let links = document.links;// Сюда падают все результаты поиска в виде массива
 
-if(btn!=undefined){
 if (btn != undefined) { // Главная страница поисковика
     let i = 0;
-    let timerId = setInterval(()=>{
     document.cookie = "site=" + site;
     let timerId = setInterval(() => {
         yandexInput.value += keyword[i++];
-        if(i==keyword.length){
         if (i == keyword.length) {
             clearInterval(timerId);
             btn.click();
         }
-    },300);
-}else{
     }, 300);
 
 } else if (location.hostname == "yandex.ru") { // Страница выдачи поисковых результатов
     site = getCookie("site");
     let nextYandexPage = true;
-    for(let i=0; i<links.length; i++){
     let currentYandexPage = document.getElementsByClassName('pager__item pager__item_current_yes pager__item_kind_page')[0].innerText;
     for (let i = 0; i < links.length; i++) {
         let link = links[i];
-        if(link.href.indexOf("xn----7sbab5aqcbiddtdj1e1g.xn--p1ai")!=-1){
         if (link.href.indexOf(site) != -1) {
             nextYandexPage = false;
             link.removeAttribute('target');
@@ -68,7 +56,6 @@ if (btn != undefined) { // Главная страница поисковика
             break; // завершаем цикл
         }
     }
-    if(nextYandexPage) document.querySelector('[aria-label="Следующая страница"]').click();
     if (nextYandexPage && currentYandexPage < 11) setTimeout(() => { document.querySelector('[aria-label="Следующая страница"]').click() }, 1500);
     else if (currentYandexPage == 11) location.href = "https://yandex.ru/";
 } else { // Мы находимся на найденом сайте
